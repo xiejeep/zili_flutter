@@ -1,0 +1,74 @@
+name: zili_flutter
+description: "字里 · 汉字启蒙学习应用（iOS / Android / HarmonyOS）"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management (pure Dart, no platform channels).
+  flutter_riverpod: ^2.6.1
+
+  # Audio playback. The cross platform Dart API stays on the upstream release so
+  # standard toolchains can compile it, the HarmonyOS implementation is added as
+  # an explicit federated plugin below.
+  # Pattern verified in /Users/jmspay/Documents/projects/book-app/flutter.
+  audioplayers: 6.5.1
+  audioplayers_ohos:
+    git:
+      url: https://gitcode.com/CPF-Flutter/flutter_audioplayers.git
+      path: packages/audioplayers_ohos
+      ref: a4b05c3
+
+  # Local storage. path_provider is hosted on pub.dev for every platform
+  # including OpenHarmony, so no git fork is needed here.
+  path_provider: ^2.1.5
+  path_provider_ohos: ^2.2.1
+
+  # Worksheet PDF generation. Pure Dart, no platform code, works on all three
+  # targets without any adaptation. Pinned to the 3.12 line because 3.13 needs
+  # a newer Dart SDK than the HarmonyOS Flutter branch ships.
+  pdf: ^3.12.0
+
+  # Saving worksheet images to the system photo album. HarmonyOS support landed
+  # in 4.0.0 and the 4.x line still allows our older SDK, so this stays on
+  # pub.dev with no git fork needed.
+  saver_gallery: ^4.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Lets the worksheet exporter tests swap in a fake storage backend.
+  path_provider_platform_interface: ^2.1.3
+
+dependency_overrides:
+  # The audioplayers OHOS fork points at a mirror of path_provider without a
+  # ref, keep the hosted package instead.
+  path_provider: ^2.1.5
+  # The fork's platform interface references TargetPlatform.ohos directly, which
+  # standard Flutter toolchains cannot compile. The adapter only relies on the
+  # upstream interface contract.
+  audioplayers_platform_interface: 7.1.1
+  # Transitive through pdf, which caps archive at <4.1.0. image 4.11.0 declares
+  # archive ^4.0.9 but its PNG decoder calls ZLibDecoder.decodeLazy, which only
+  # exists from archive 4.4.0 on (the constraint was tightened to ^4.4.0 in
+  # image 4.11.1). 4.10.2 is the last release still using decodeBytes.
+  image: 4.10.2
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/data/
+    - assets/audio/syllables/
+    - assets/fonts/
